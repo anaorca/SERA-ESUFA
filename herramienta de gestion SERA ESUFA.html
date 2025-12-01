@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herramienta de Gestión SERA-ESUFA 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --esufa-blue: #003366;
+            --esufa-gold: #C5911E;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f8fafc;
+            color: #333;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--esufa-blue) 0%, #001a33 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .nav-item {
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left-color: var(--esufa-gold);
+        }
+
+        .phase-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .phase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .btn-esufa {
+            background-color: var(--esufa-blue);
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        .btn-esufa:hover {
+            background-color: #002244;
+        }
+
+        .tool-box {
+            background-color: white;
+            border-radius: 12px;
+            border-top: 4px solid var(--esufa-gold);
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background-color: var(--esufa-gold);
+            color: var(--esufa-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        /* Estilos para el logo en el sidebar */
+        .logo-container {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            border-radius: 50%;
+            padding: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            overflow: hidden; /* Asegura que la imagen no se salga del círculo */
+        }
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ajusta la imagen dentro del contenedor */
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="sidebar w-64 hidden md:flex flex-col shadow-xl z-20">
+        <div class="p-6 flex flex-col items-center justify-center border-b border-blue-800">
+            <!-- Logo ESUFA -->
+            <div class="logo-container">
+                 <!-- IMPORTANTE: La imagen debe llamarse escudo_esufa.png y estar en la misma carpeta -->
+                 <img src="escudo_esufa.png" alt="Escudo ESUFA" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                 <!-- Icono de respaldo por si no se encuentra la imagen -->
+                 <i class="fas fa-plane-departure text-4xl text-[#003366]" style="display:none;"></i>
+            </div>
+            <div class="text-center">
+                <h1 class="text-lg font-bold tracking-wider">SERA-ESUFA</h1>
+                <p class="text-xs text-gray-400">Gestión Docente 2025</p>
+            </div>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-4">
+            <div class="px-4 mb-2 text-xs text-gray-400 uppercase font-semibold">Ciclo de Calidad</div>
+            
+            <div class="nav-item px-6 py-3 flex items-center active" id="nav-inicio" onclick="loadView('inicio')">
+                <i class="fas fa-home w-6"></i> <span class="ml-3">Inicio</span>
+            </div>
+            
+            <div class="nav-item px-6 py-3 flex items-center" id="nav-fase1" onclick="loadView('fase1')">
+                <i class="fas fa-pencil-ruler w-6 text-blue-300"></i> 
+                <div class="ml-3">
+                    <span class="block font-bold">1. PLANEAR</span>
+                    <span class="text-xs text-gray-400">Diseño de RAs</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 flex items-center" id="nav-fase2" onclick="loadView('fase2')">
+                <i class="fas fa-chalkboard-teacher w-6 text-green-300"></i>
+                <div class="ml-3">
+                    <span class="block font-bold">2. HACER</span>
+                    <span class="text-xs text-gray-400">Ejecución</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 flex items-center" id="nav-fase3" onclick="loadView('fase3')">
+                <i class="fas fa-check-double w-6 text-yellow-300"></i>
+                <div class="ml-3">
+                    <span class="block font-bold">3. VERIFICAR</span>
+                    <span class="text-xs text-gray-400">Calificación</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 flex items-center" id="nav-fase4" onclick="loadView('fase4')">
+                <i class="fas fa-chart-line w-6 text-red-300"></i>
+                <div class="ml-3">
+                    <span class="block font-bold">4. ACTUAR</span>
+                    <span class="text-xs text-gray-400">Mejora</span>
+                </div>
+            </div>
+
+            <div class="mt-8 px-4 mb-2 text-xs text-gray-400 uppercase font-semibold">Instrumentos</div>
+            <div class="nav-item px-6 py-3 flex items-center" id="nav-descargas" onclick="loadView('descargas')">
+                <i class="fas fa-file-word w-6"></i> <span class="ml-3">Generar Formatos</span>
+            </div>
+        </nav>
+
+        <div class="p-4 bg-blue-900 text-xs text-center text-gray-400 border-t border-blue-800">
+            Escuela de Suboficiales<br>"CT. Andrés M. Díaz"
+        </div>
+    </aside>
+
+    <!-- Área Principal -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-gray-50 relative">
+        
+        <!-- Header Móvil -->
+        <header class="md:hidden bg-[#003366] text-white p-4 flex justify-between items-center shadow-md z-30">
+            <div class="flex items-center">
+                 <div class="w-8 h-8 mr-3 bg-white rounded-full p-0.5 overflow-hidden">
+                    <img src="escudo_esufa.png" alt="Escudo" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <i class="fas fa-plane-departure text-[#003366]" style="display:none;"></i>
+                 </div>
+                 <span class="font-bold">SERA-ESUFA 2025</span>
+            </div>
+            <button onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+        </header>
+
+        <!-- Menú Móvil -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-14 left-0 w-full bg-[#003366] text-white shadow-xl z-20">
+            <div class="p-4 border-b border-blue-800" onclick="loadView('inicio'); toggleMobileMenu()">Inicio</div>
+            <div class="p-4 border-b border-blue-800" onclick="loadView('fase1'); toggleMobileMenu()">1. Planear</div>
+            <div class="p-4 border-b border-blue-800" onclick="loadView('fase2'); toggleMobileMenu()">2. Hacer</div>
+            <div class="p-4 border-b border-blue-800" onclick="loadView('fase3'); toggleMobileMenu()">3. Verificar</div>
+            <div class="p-4 border-b border-blue-800" onclick="loadView('fase4'); toggleMobileMenu()">4. Actuar</div>
+            <div class="p-4" onclick="loadView('descargas'); toggleMobileMenu()">Formatos</div>
+        </div>
+
+        <!-- Contenedor de Vistas -->
+        <div id="content-area" class="flex-1 overflow-y-auto p-4 md:p-8">
+            <!-- Contenido dinámico -->
+        </div>
+
+    </main>
+
+    <!-- TEMPLATES -->
+    
+    <!-- VISTA: INICIO -->
+    <template id="view-inicio">
+        <div class="max-w-5xl mx-auto fade-in">
+            <div class="bg-white rounded-2xl p-8 shadow-lg border-l-8 border-[#C5911E] mb-8">
+                <h2 class="text-3xl font-bold text-[#003366] mb-4">Herramienta de Gestión SERA-ESUFA</h2>
+                <p class="text-gray-600 text-lg mb-4">
+                    Bienvenido al asistente digital para la implementación del <strong>Sistema de Evaluación de Resultados de Aprendizaje</strong>. 
+                    Esta aplicación web le permite validar RAs, calcular notas según el REDAC y generar los instrumentos oficiales.
+                </p>
+                <div class="flex gap-4 mt-6">
+                    <button onclick="loadView('fase1')" class="bg-[#003366] text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-900 transition shadow">
+                        Comenzar Ciclo
+                    </button>
+                    <button onclick="loadView('descargas')" class="bg-white border border-[#003366] text-[#003366] px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition shadow-sm">
+                        <i class="fas fa-download mr-2"></i>Banco de Formatos
+                    </button>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-gray-700 mb-4">Acceso Rápido a Fases</h3>
+            <div class="grid md:grid-cols-4 gap-4">
+                <div class="phase-card bg-white p-5 rounded-xl shadow-sm border-t-4 border-blue-500 cursor-pointer hover:bg-blue-50" onclick="loadView('fase1')">
+                    <div class="text-blue-600 text-2xl mb-2"><i class="fas fa-pencil-ruler"></i></div>
+                    <h4 class="font-bold text-gray-800">1. Planear</h4>
+                    <p class="text-xs text-gray-500">Diseño de RAs</p>
+                </div>
+                <div class="phase-card bg-white p-5 rounded-xl shadow-sm border-t-4 border-green-500 cursor-pointer hover:bg-green-50" onclick="loadView('fase2')">
+                    <div class="text-green-600 text-2xl mb-2"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <h4 class="font-bold text-gray-800">2. Hacer</h4>
+                    <p class="text-xs text-gray-500">Ruta Metodológica</p>
+                </div>
+                <div class="phase-card bg-white p-5 rounded-xl shadow-sm border-t-4 border-yellow-500 cursor-pointer hover:bg-yellow-50" onclick="loadView('fase3')">
+                    <div class="text-yellow-600 text-2xl mb-2"><i class="fas fa-calculator"></i></div>
+                    <h4 class="font-bold text-gray-800">3. Verificar</h4>
+                    <p class="text-xs text-gray-500">Calculadora de Notas</p>
+                </div>
+                <div class="phase-card bg-white p-5 rounded-xl shadow-sm border-t-4 border-red-500 cursor-pointer hover:bg-red-50" onclick="loadView('fase4')">
+                    <div class="text-red-600 text-2xl mb-2"><i class="fas fa-chart-pie"></i></div>
+                    <h4 class="font-bold text-gray-800">4. Actuar</h4>
+                    <p class="text-xs text-gray-500">Planes de Mejora</p>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- VISTA: FASE 1 - PLANEAR -->
+    <template id="view-fase1">
+        <div class="max-w-5xl mx-auto fade-in">
+            <h2 class="text-2xl font-bold text-[#003366] mb-2">Fase 1: Planear</h2>
+            <p class="text-gray-500 mb-6">Diseño y formulación de Resultados de Aprendizaje (RA)</p>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Constructor RA -->
+                <div class="tool-box">
+                    <h3 class="font-bold text-lg mb-4 flex items-center"><i class="fas fa-tools text-yellow-600 mr-2"></i>Constructor de RAs</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase block mb-1">1. Verbo (Taxonomía Bloom)</label>
+                            <input type="text" id="ra-accion" placeholder="Ej: Diagnosticar, Calcular, Diseñar..." class="w-full border p-2 rounded focus:ring-2 ring-blue-200 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase block mb-1">2. Objeto (Contenido)</label>
+                            <input type="text" id="ra-contenido" placeholder="Ej: fallas en el sistema hidráulico..." class="w-full border p-2 rounded focus:ring-2 ring-blue-200 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase block mb-1">3. Condición (Contexto)</label>
+                            <input type="text" id="ra-condicion" placeholder="Ej: según el manual técnico T.O. 1-1-1." class="w-full border p-2 rounded focus:ring-2 ring-blue-200 outline-none">
+                        </div>
+                        
+                        <div id="ra-result" class="p-4 bg-gray-50 rounded border border-dashed border-gray-300 text-center text-sm text-gray-500">
+                            El Resultado de Aprendizaje aparecerá aquí...
+                        </div>
+                        
+                        <button onclick="generarRA()" class="w-full btn-esufa py-2 rounded font-bold shadow">Validar RA</button>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="font-bold text-[#003366] mb-4">Alineamiento Constructivo</h3>
+                    <p class="text-sm text-gray-600 mb-4">Recuerde que el verbo del RA determina la evaluación:</p>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Si el RA es <strong>"Ejecutar"</strong> → Evalúe con <strong>Lista de Chequeo</strong> (Práctica).</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Si el RA es <strong>"Analizar"</strong> → Evalúe con <strong>Rúbrica</strong> (Estudio de Caso).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- VISTA: FASE 2 - HACER -->
+    <template id="view-fase2">
+        <div class="max-w-5xl mx-auto fade-in">
+            <h2 class="text-2xl font-bold text-[#003366] mb-2">Fase 2: Hacer</h2>
+            <p class="text-gray-500 mb-6">Implementación y evaluación en el aula/hangar</p>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm mb-6 border-l-4 border-green-500">
+                <h3 class="font-bold text-lg mb-2">Protocolo de Evaluación Obligatorio</h3>
+                <p class="text-sm text-gray-600">Todo docente ESUFA debe seguir estos pasos para garantizar transparencia:</p>
+                <div class="flex justify-between mt-4 text-center text-xs">
+                    <div class="flex-1 border-t-2 border-green-200 pt-2">1. Planeación</div>
+                    <div class="flex-1 border-t-2 border-green-300 pt-2">2. Selección</div>
+                    <div class="flex-1 border-t-2 border-green-400 pt-2 font-bold">3. Socialización (Antes)</div>
+                    <div class="flex-1 border-t-2 border-green-500 pt-2">4. Aplicación</div>
+                    <div class="flex-1 border-t-2 border-green-600 pt-2">5. Feedback</div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition cursor-pointer border border-gray-100" onclick="loadView('descargas')">
+                    <div class="flex items-center mb-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3"><i class="fas fa-list"></i></div>
+                        <h4 class="font-bold text-gray-800">Rúbricas</h4>
+                    </div>
+                    <p class="text-sm text-gray-500">Para evaluar el <strong>SABER</strong> complejo. Generar formato ></p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition cursor-pointer border border-gray-100" onclick="loadView('descargas')">
+                    <div class="flex items-center mb-3">
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-3"><i class="fas fa-check-square"></i></div>
+                        <h4 class="font-bold text-gray-800">Listas de Chequeo</h4>
+                    </div>
+                    <p class="text-sm text-gray-500">Para evaluar el <strong>HACER</strong> procedimental. Generar formato ></p>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- VISTA: FASE 3 - VERIFICAR -->
+    <template id="view-fase3">
+        <div class="max-w-5xl mx-auto fade-in">
+            <h2 class="text-2xl font-bold text-[#003366] mb-2">Fase 3: Verificar</h2>
+            <p class="text-gray-500 mb-6">Validación de resultados y calificación REDAC</p>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Calculadora -->
+                <div class="tool-box border-t-yellow-500">
+                    <h3 class="font-bold text-lg mb-4">🧮 Calculadora de Notas</h3>
+                    <div class="space-y-4">
+                        <label class="block text-sm font-bold text-gray-700">Nivel de Desempeño Observado:</label>
+                        <select id="nivel-select" class="w-full border p-2 rounded bg-white outline-none" onchange="calcularNota()">
+                            <option value="0">Seleccione...</option>
+                            <option value="4">Nivel 4: Sobresaliente</option>
+                            <option value="3">Nivel 3: Competente</option>
+                            <option value="2">Nivel 2: Básico / En Desarrollo</option>
+                            <option value="1">Nivel 1: Insuficiente</option>
+                        </select>
+
+                        <div id="resultado-nota" class="hidden p-6 rounded-xl text-center">
+                            <div class="text-xs uppercase font-bold tracking-wider mb-1 opacity-70">Rango REDAC</div>
+                            <div class="text-4xl font-bold mb-2" id="rango-valor">0.0</div>
+                            <div class="font-bold text-sm px-3 py-1 rounded-full inline-block" id="estado-aprobacion">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info REDAC -->
+                <div class="bg-white p-6 rounded-xl shadow-sm space-y-4">
+                    <h3 class="font-bold text-gray-800">Normativa REDAC 2025</h3>
+                    <div class="flex items-center p-3 bg-green-50 rounded border border-green-100">
+                        <div class="font-bold text-green-800 text-xl mr-3">3.8</div>
+                        <div class="text-sm text-green-700">Nota Mínima Aprobatoria. (Nivel Competente).</div>
+                    </div>
+                    <div class="flex items-center p-3 bg-red-50 rounded border border-red-100">
+                        <div class="font-bold text-red-800 text-xl mr-3">3.7</div>
+                        <div class="text-sm text-red-700">Hacia abajo es REPROBADO (Incluso Nivel Básico).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- VISTA: FASE 4 - ACTUAR -->
+    <template id="view-fase4">
+        <div class="max-w-5xl mx-auto fade-in">
+            <h2 class="text-2xl font-bold text-[#003366] mb-2">Fase 4: Actuar</h2>
+            <p class="text-gray-500 mb-6">Mejora continua y toma de decisiones</p>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-red-500">
+                <h3 class="font-bold text-lg mb-4">Borrador de Plan de Mejora</h3>
+                <p class="text-sm text-gray-500 mb-4">Redacte aquí los puntos clave para el Informe de Análisis de Resultados (Anexo D).</p>
+                <textarea class="w-full border p-3 rounded-lg bg-gray-50 text-sm focus:bg-white transition h-32 outline-none focus:ring-2 ring-red-100" placeholder="Identifique RAs con bajo desempeño y proponga acciones correctivas..."></textarea>
+                <div class="mt-4 text-right">
+                    <button onclick="loadView('descargas')" class="bg-red-600 text-white px-4 py-2 rounded text-sm font-bold hover:bg-red-700 transition">Ir a Descargar Informe Oficial</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- VISTA: DESCARGAS (FORMATOS) -->
+    <template id="view-descargas">
+        <div class="max-w-5xl mx-auto fade-in">
+            <h2 class="text-2xl font-bold text-[#003366] mb-6 border-b pb-2">Generador de Instrumentos Oficiales</h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                
+                <!-- Rúbrica -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 flex gap-4 hover:shadow-lg transition group">
+                    <div class="bg-blue-100 text-blue-600 w-12 h-12 rounded-lg flex items-center justify-center text-xl group-hover:bg-blue-600 group-hover:text-white transition"><i class="fas fa-table"></i></div>
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">Rúbrica Analítica</h3>
+                        <p class="text-sm text-gray-500 mb-3">Anexo A. Para evaluar saberes complejos.</p>
+                        <button onclick="descargarWord('rubrica')" class="text-blue-600 text-sm font-bold hover:underline">Generar Archivo .doc</button>
+                    </div>
+                </div>
+
+                <!-- Lista de Chequeo -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 flex gap-4 hover:shadow-lg transition group">
+                    <div class="bg-green-100 text-green-600 w-12 h-12 rounded-lg flex items-center justify-center text-xl group-hover:bg-green-600 group-hover:text-white transition"><i class="fas fa-check-double"></i></div>
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">Lista de Chequeo</h3>
+                        <p class="text-sm text-gray-500 mb-3">Anexo B. Para procedimientos técnicos.</p>
+                        <button onclick="descargarWord('lista')" class="text-green-600 text-sm font-bold hover:underline">Generar Archivo .doc</button>
+                    </div>
+                </div>
+
+                <!-- Portafolio -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 flex gap-4 hover:shadow-lg transition group">
+                    <div class="bg-purple-100 text-purple-600 w-12 h-12 rounded-lg flex items-center justify-center text-xl group-hover:bg-purple-600 group-hover:text-white transition"><i class="fas fa-folder-open"></i></div>
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">Portafolio de Evidencias</h3>
+                        <p class="text-sm text-gray-500 mb-3">Guía para recopilación de evidencias.</p>
+                        <button onclick="descargarWord('portafolio')" class="text-purple-600 text-sm font-bold hover:underline">Generar Archivo .doc</button>
+                    </div>
+                </div>
+
+                <!-- Informe -->
+                <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 flex gap-4 hover:shadow-lg transition group">
+                    <div class="bg-red-100 text-red-600 w-12 h-12 rounded-lg flex items-center justify-center text-xl group-hover:bg-red-600 group-hover:text-white transition"><i class="fas fa-file-contract"></i></div>
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">Informe de Análisis</h3>
+                        <p class="text-sm text-gray-500 mb-3">Anexo D. Para cierre de ciclo y mejora.</p>
+                        <button onclick="descargarWord('informe')" class="text-red-600 text-sm font-bold hover:underline">Generar Archivo .doc</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </template>
+
+    <script>
+        // Router simple
+        function loadView(viewId) {
+            const container = document.getElementById('content-area');
+            const template = document.getElementById('view-' + viewId);
+            
+            // Transición suave
+            container.style.opacity = '0';
+            setTimeout(() => {
+                container.innerHTML = template.innerHTML;
+                container.style.opacity = '1';
+            }, 150);
+
+            // Actualizar sidebar
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active', 'bg-white/10', 'border-l-4', 'border-yellow-500'));
+            const activeNav = document.getElementById('nav-' + viewId);
+            if(activeNav) activeNav.classList.add('active', 'bg-white/10', 'border-l-4', 'border-yellow-500');
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // Lógica Fase 1: Constructor RA
+        function generarRA() {
+            const accion = document.getElementById('ra-accion').value;
+            const contenido = document.getElementById('ra-contenido').value;
+            const condicion = document.getElementById('ra-condicion').value;
+            const res = document.getElementById('ra-result');
+
+            if(accion && contenido && condicion) {
+                res.innerHTML = `<span class="text-green-600 font-bold">RA Validado:</span> ${accion} ${contenido} ${condicion}`;
+                res.classList.replace('bg-gray-50', 'bg-green-50');
+                res.classList.replace('text-gray-500', 'text-green-800');
+                res.classList.replace('border-gray-300', 'border-green-200');
+            } else {
+                res.innerText = "Por favor complete los 3 campos para estructurar el RA.";
+                res.classList.replace('bg-green-50', 'bg-gray-50');
+                res.classList.replace('text-green-800', 'text-red-500');
+            }
+        }
+
+        // Lógica Fase 3: Calculadora
+        function calcularNota() {
+            const nivel = document.getElementById('nivel-select').value;
+            const div = document.getElementById('resultado-nota');
+            const val = document.getElementById('rango-valor');
+            const est = document.getElementById('estado-aprobacion');
+
+            div.classList.remove('hidden', 'bg-green-100', 'bg-orange-100', 'bg-red-100', 'text-green-800', 'text-orange-800', 'text-red-800');
+
+            if (nivel == "4") {
+                div.classList.add('bg-green-100', 'text-green-800');
+                val.innerText = "4.6 - 5.0";
+                est.innerText = "APROBADO (Sobresaliente)";
+                div.classList.remove('hidden');
+            } else if (nivel == "3") {
+                div.classList.add('bg-green-100', 'text-green-800');
+                val.innerText = "3.8 - 4.5";
+                est.innerText = "APROBADO (Competente)";
+                div.classList.remove('hidden');
+            } else if (nivel == "2") {
+                div.classList.add('bg-orange-100', 'text-orange-800');
+                val.innerText = "3.0 - 3.7";
+                est.innerText = "REPROBADO (Básico)";
+                div.classList.remove('hidden');
+            } else if (nivel == "1") {
+                div.classList.add('bg-red-100', 'text-red-800');
+                val.innerText = "0.0 - 2.9";
+                est.innerText = "REPROBADO (Insuficiente)";
+                div.classList.remove('hidden');
+            } else {
+                div.classList.add('hidden');
+            }
+        }
+
+        // Lógica Fase 5: Generador de Archivos (Word compatible)
+        function descargarWord(tipo) {
+            let contenido = "";
+            let nombreArchivo = "";
+
+            // Encabezado común para que Word lo reconozca
+            const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Documento ESUFA</title></head><body>`;
+            const footer = `</body></html>`;
+
+            if (tipo === 'rubrica') {
+                nombreArchivo = "Anexo_A_Rubrica_Analitica.doc";
+                contenido = `
+                    <h2 style="text-align:center; color:#003366;">ANEXO A: PLANTILLA INSTITUCIONAL DE RÚBRICA ANALÍTICA</h2>
+                    <p><strong>ESCUELA DE SUBOFICIALES "CT. ANDRÉS M. DÍAZ"</strong></p>
+                    <p><strong>Asignatura:</strong> __________________________ <strong>RA a Evaluar:</strong> __________________________</p>
+                    <table border="1" style="width:100%; border-collapse:collapse; font-family:Arial, sans-serif;">
+                        <tr style="background-color:#003366; color:white;">
+                            <th>Criterios (Peso %)</th>
+                            <th>Nivel 4: Sobresaliente<br>(4.6 - 5.0)</th>
+                            <th>Nivel 3: Competente<br>(3.8 - 4.5)</th>
+                            <th>Nivel 2: Básico<br>(3.0 - 3.7)</th>
+                            <th>Nivel 1: Insuficiente<br>(0.0 - 2.9)</th>
+                            <th>Nota</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Criterio 1</strong><br>(___%)</td>
+                            <td>Supera expectativas...</td>
+                            <td>Cumple estándar...</td>
+                            <td>Desempeño parcial (NO APRUEBA)...</td>
+                            <td>No cumple...</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Criterio 2</strong><br>(___%)</td>
+                            <td></td><td></td><td></td><td></td><td></td>
+                        </tr>
+                    </table>
+                    <p style="color:red; font-weight:bold;">NOTA: La calificación mínima aprobatoria según REDAC es 3.8.</p>
+                `;
+            } else if (tipo === 'lista') {
+                nombreArchivo = "Anexo_B_Lista_Chequeo.doc";
+                contenido = `
+                    <h2 style="text-align:center; color:#003366;">ANEXO B: LISTA DE CHEQUEO (PROCEDIMIENTOS)</h2>
+                    <p><strong>ESCUELA DE SUBOFICIALES "CT. ANDRÉS M. DÍAZ"</strong></p>
+                    <p><strong>Actividad:</strong> __________________________</p>
+                    <table border="1" style="width:100%; border-collapse:collapse; font-family:Arial, sans-serif;">
+                        <tr style="background-color:#C5911E; color:white;">
+                            <th>No.</th>
+                            <th>Item / Paso a Verificar</th>
+                            <th>CUMPLE</th>
+                            <th>NO CUMPLE</th>
+                            <th>Observaciones</th>
+                        </tr>
+                        <tr><td>1</td><td>Utiliza EPP requeridos</td><td></td><td></td><td>Obligatorio</td></tr>
+                        <tr><td>2</td><td>Verifica estado inicial</td><td></td><td></td><td></td></tr>
+                        <tr><td>3</td><td>Sigue secuencia lógica (T.O.)</td><td></td><td></td><td></td></tr>
+                    </table>
+                    <p><strong>Resultado Final:</strong> APROBADO / REPROBADO</p>
+                `;
+            } else if (tipo === 'portafolio') {
+                nombreArchivo = "Guia_Portafolio.doc";
+                contenido = `
+                    <h2 style="text-align:center; color:#003366;">ESTRUCTURA DE PORTAFOLIO DE EVIDENCIAS</h2>
+                    <p><strong>ESCUELA DE SUBOFICIALES "CT. ANDRÉS M. DÍAZ"</strong></p>
+                    <h3>1. Introducción</h3>
+                    <p>Descripción de la competencia a desarrollar.</p>
+                    <h3>2. Evidencias Seleccionadas</h3>
+                    <p>Mínimo 3 trabajos prácticos (informes, fotos, diagramas).</p>
+                    <h3>3. Reflexión (Metacognición)</h3>
+                    <ul>
+                        <li>¿Qué aprendí con esta actividad?</li>
+                        <li>¿Qué errores cometí y cómo los corregí?</li>
+                        <li>¿Cómo se aplica esto a mi futuro rol como Suboficial?</li>
+                    </ul>
+                    <h3>4. Evaluación</h3>
+                    <p>Espacio para valoración del docente (Nota mínima 3.8).</p>
+                `;
+            } else if (tipo === 'informe') {
+                nombreArchivo = "Anexo_D_Informe_Analisis.doc";
+                contenido = `
+                    <h2 style="text-align:center; color:#003366;">ANEXO D: INFORME DE ANÁLISIS DE RESULTADOS</h2>
+                    <p><strong>Periodo:</strong> _________ <strong>Programa:</strong> _________</p>
+                    <h3>1. Indicadores de Logro</h3>
+                    <table border="1" style="width:100%; border-collapse:collapse; font-family:Arial, sans-serif;">
+                        <tr>
+                            <th>RA</th>
+                            <th>% Aprobados (>3.8)</th>
+                            <th>% Reprobados (<3.8)</th>
+                            <th>Principales Dificultades</th>
+                        </tr>
+                        <tr><td>RA 1</td><td></td><td></td><td></td></tr>
+                        <tr><td>RA 2</td><td></td><td></td><td></td></tr>
+                    </table>
+                    <h3>2. Plan de Mejoramiento</h3>
+                    <p>Acciones concretas para el próximo periodo: __________________________</p>
+                `;
+            }
+
+            const blob = new Blob(['\ufeff', header + contenido + footer], {
+                type: 'application/msword'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = nombreArchivo;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Iniciar en Vista Inicio
+        document.addEventListener('DOMContentLoaded', () => {
+            loadView('inicio');
+            document.getElementById('content-area').style.transition = 'opacity 0.2s ease-in-out';
+        });
+    </script>
+</body>
+</html>
